@@ -120,7 +120,9 @@ Os objetos consultados são modelos simples da API, sendo eles:
 
 Ainda será ajustado, mas inicialmente:
 
-- 100 requisições simultâneas para cada tipo de API
+- 100 medições por tratamento (REST e GraphQL)
+
+- 3 rodadas (trials) → total 300 medições por API
 
 ---
 
