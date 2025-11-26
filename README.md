@@ -128,6 +128,7 @@ Ainda será ajustado, mas inicialmente:
 
 1.  **Validade Interna**
     - Variações no servidor podem afetar resultados.
+    - Nosso código pode não estar otimizado igualmente para ambos os tipos de API.
 2.  **Validade Externa**
     - Os resultados podem não generalizar para todas as arquiteturas
       ou modelos de API.
