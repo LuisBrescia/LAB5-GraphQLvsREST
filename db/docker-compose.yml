@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: experiment-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: experimentdb
+    volumes:
+      - ./mongodb/init.js:/docker-entrypoint-initdb.d/init.js:ro
+
+  mariadb:
+    image: mariadb:11
+    container_name: experiment-mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: experimentdb
+      MARIADB_USER: experiment
+      MARIADB_PASSWORD: experiment
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./mariadb/seed-users.sql:/docker-entrypoint-initdb.d/02-seed-users.sql:ro
