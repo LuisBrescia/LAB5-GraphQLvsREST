@@ -9,6 +9,13 @@ import {
 } from "./scripts/restMariaClient.js";
 
 import {
+  listMongoUsers,
+  addManyMongo,
+  updateManyMongo,
+  deleteManyMongo,
+} from "./scripts/restMongoClient.js";
+
+import {
   fetchMariaGQL,
   addManyMariaGQL,
   updateManyMariaGQL,
@@ -16,7 +23,23 @@ import {
 } from "./scripts/gqlMariaClient.js";
 
 async function run() {
-  console.log("\n🚀 Teste de Performance - REST MariaDB");
+  console.log("\n🚀 MongoDB");
+
+  const listBeforeMongo = await listMongoUsers();
+  const insertedMongo = await addManyMongo(1000);
+  const listAfterInsertMongo = await listMongoUsers();
+
+  const newIdsMongo = listAfterInsertMongo.data
+    .map((u) => u._id)
+    .filter((id) => !listBeforeMongo.ids.includes(id));
+  const updatedMongo = await updateManyMongo(newIdsMongo);
+  const deletedMongo = await deleteManyMongo(newIdsMongo);
+
+  console.log("\n=========== RESULTADOS REST ===========\n");
+  for (const r of [listBeforeMongo, insertedMongo, updatedMongo, deletedMongo])
+    console.log(`${r.label} — Tempo: ${r.time.toFixed(2)}ms`);
+
+  console.log("\n🚀 MariaDB");
 
   const listBefore = await listUsers();
   const inserted = await addManyUsers(1000);
@@ -34,7 +57,6 @@ async function run() {
     console.log(`${r.label} — Tempo: ${r.time.toFixed(2)}ms`);
 
   // ================= GraphQL ====================
-  console.log("\n⚡ Teste GraphQL MariaDB");
 
   const gqlBefore = await fetchMariaGQL();
   const gqlInserted = await addManyMariaGQL(1000);
@@ -54,6 +76,30 @@ async function run() {
   console.log("\n🔥 Teste finalizado com sucesso\n");
 
   const results = [
+    {
+      api: "REST",
+      db: "MongoDB",
+      method: listBeforeMongo.label,
+      time: listBeforeMongo.time,
+    },
+    {
+      api: "REST",
+      db: "MongoDB",
+      method: insertedMongo.label,
+      time: insertedMongo.time,
+    },
+    {
+      api: "REST",
+      db: "MongoDB",
+      method: updatedMongo.label,
+      time: updatedMongo.time,
+    },
+    {
+      api: "REST",
+      db: "MongoDB",
+      method: deletedMongo.label,
+      time: deletedMongo.time,
+    },
     {
       api: "REST",
       db: "MariaDB",

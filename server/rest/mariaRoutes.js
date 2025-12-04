@@ -38,24 +38,12 @@ export default (app, MariaPool) => {
   });
 
   app.put("/maria/users/many", async (req, res) => {
-    /*
-    exemplo de body:
-
-    {
-      "users": [
-        { "id": 1, "name": "Novo Nome", "age": 22 },
-        { "id": 2, "name": "Outro Nome", "age": 30 }
-      ]
-    }
-  */
-
     const { users } = req.body;
     if (!Array.isArray(users) || users.length === 0)
       return res
         .status(400)
         .json({ error: "Envie um array de usuários para atualizar!" });
 
-    // construir SQL CASE para atualizar em lote
     const ids = users.map((u) => u.id).join(",");
 
     const nameCase = users
@@ -86,7 +74,7 @@ export default (app, MariaPool) => {
   });
 
   app.delete("/maria/users/many", async (req, res) => {
-    const { ids } = req.body; // ex: { "ids": [1,2,3] }
+    const { ids } = req.body;
 
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ error: "Envie um array de ids!" });
