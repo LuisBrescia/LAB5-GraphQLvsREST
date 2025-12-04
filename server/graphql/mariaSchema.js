@@ -15,7 +15,5 @@ export const mariaTypeDefs = gql`
 export const mariaResolvers = (MariaPool) => ({
   Query: {
     mariaUsers: async () => (await MariaPool.query("SELECT * FROM users"))[0],
-    mariaUser: async (_, { id }) =>
-      (await MariaPool.query("SELECT * FROM users WHERE id = ?", [id]))[0][0],
   },
 });

@@ -15,6 +15,5 @@ export const mongoTypeDefs = gql`
 export const mongoResolvers = (MongoUser) => ({
   Query: {
     mongoUsers: () => MongoUser.find({}, "-__v"),
-    mongoUser: (_, { id }) => MongoUser.findOne({ id }),
   },
 });
