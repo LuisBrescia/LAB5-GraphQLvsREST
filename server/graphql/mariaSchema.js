@@ -51,9 +51,6 @@ export const mariaResolvers = (MariaPool) => ({
   },
 
   Mutation: {
-    // =============================================================
-    // CREATE MANY
-    // =============================================================
     mariaAddMany: async (_, { users }) => {
       const values = users.map((u) => [u.name, u.age]);
 
@@ -67,9 +64,6 @@ export const mariaResolvers = (MariaPool) => ({
       return rows.reverse();
     },
 
-    // =============================================================
-    // UPDATE MANY (somente os campos enviados)
-    // =============================================================
     mariaUpdateMany: async (_, { users }) => {
       if (!users.length) return 0;
 
@@ -92,9 +86,6 @@ export const mariaResolvers = (MariaPool) => ({
       return result.affectedRows;
     },
 
-    // =============================================================
-    // DELETE MANY
-    // =============================================================
     mariaDeleteMany: async (_, { ids }) => {
       const placeholders = ids.map(() => "?").join(",");
       const [res] = await MariaPool.query(

@@ -2,9 +2,6 @@ import axios from "axios";
 
 const API = "http://localhost:4000/graphql";
 
-/* ===============================================
-   FUNÇÃO BASE
-   =============================================== */
 async function execGQL(query, variables = {}, extract) {
   const start = performance.now();
   const res = await axios.post(API, { query, variables });
@@ -19,9 +16,6 @@ async function execGQL(query, variables = {}, extract) {
   };
 }
 
-/* ===============================================
-   OPERAÇÕES DIRETAS (retornam tempo + size + data)
-   =============================================== */
 export const fetchMariaGQL = async () =>
   execGQL(`query { mariaUsers { id name age } }`, {}, (d) => d.mariaUsers).then(
     (r) => ({
@@ -55,11 +49,6 @@ export const deleteMariaGQL = async (ids) =>
     (d) => d.mariaDeleteMany
   ).then((r) => ({ ...r, label: "MariaDB GraphQL DELETE Many" }));
 
-/* ===============================================
-   ⏩  TESTES MASSIVOS — x500 / x1000
-   =============================================== */
-
-// INSERT xN
 export async function addManyMariaGQL(count = 500) {
   const users = Array.from({ length: count }, (_, i) => ({
     name: `MariaGQL-${i}`,
@@ -78,7 +67,6 @@ export async function addManyMariaGQL(count = 500) {
   };
 }
 
-// UPDATE xN
 export async function updateManyMariaGQL(ids) {
   const users = ids.map((id) => ({
     id,
@@ -90,7 +78,6 @@ export async function updateManyMariaGQL(ids) {
   return { label: `PUT x${ids.length}`, time };
 }
 
-// DELETE xN
 export async function deleteManyMariaGQL(ids) {
   const { time } = await deleteMariaGQL(ids);
   return { label: `DELETE x${ids.length}`, time };

@@ -24,20 +24,7 @@ export default (app, MariaPool) => {
     });
   });
 
-  app.put("/maria/users/:id", async (req, res) => {
-    const { id } = req.params;
-    const { name, age } = req.body;
-
-    await MariaPool.query("UPDATE users SET name = ?, age = ? WHERE id = ?", [
-      name,
-      age,
-      id,
-    ]);
-
-    res.json({ id, updated: true });
-  });
-
-  app.put("/maria/users/many", async (req, res) => {
+  app.put("/maria/users", async (req, res) => {
     const { users } = req.body;
     if (!Array.isArray(users) || users.length === 0)
       return res
@@ -67,13 +54,7 @@ export default (app, MariaPool) => {
     });
   });
 
-  app.delete("/maria/users/:id", async (req, res) => {
-    const { id } = req.params;
-    await MariaPool.query("DELETE FROM users WHERE id = ?", [id]);
-    res.json({ id, deleted: true });
-  });
-
-  app.delete("/maria/users/many", async (req, res) => {
+  app.delete("/maria/users", async (req, res) => {
     const { ids } = req.body;
 
     if (!Array.isArray(ids) || ids.length === 0) {

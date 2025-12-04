@@ -22,6 +22,13 @@ import {
   deleteManyMariaGQL,
 } from "./scripts/gqlMariaClient.js";
 
+import {
+  fetchMongoGQL,
+  addManyMongoGQL,
+  updateManyMongoGQL,
+  deleteManyMongoGQL,
+} from "./scripts/gqlMongoClient.js";
+
 async function run() {
   console.log("\n🚀 MongoDB");
 
@@ -38,6 +45,29 @@ async function run() {
   console.log("\n=========== RESULTADOS REST ===========\n");
   for (const r of [listBeforeMongo, insertedMongo, updatedMongo, deletedMongo])
     console.log(`${r.label} — Tempo: ${r.time.toFixed(2)}ms`);
+
+  // ================= GraphQL ====================
+
+  const gqlMongoBefore = await fetchMongoGQL();
+  const gqlMongoInserted = await addManyMongoGQL(1000);
+  const gqlMongoAfterInsert = await fetchMongoGQL();
+
+  const gqlMongoNewIds = gqlMongoAfterInsert.data
+    .map((u) => u.id)
+    .filter((id) => !gqlMongoBefore.data.some((x) => x.id == id));
+
+  const gqlMongoUpdated = await updateManyMongoGQL(gqlMongoNewIds);
+  const gqlMongoDeleted = await deleteManyMongoGQL(gqlMongoNewIds);
+
+  console.log("\n=========== RESULTADOS GraphQL ===========\n");
+  for (const r of [
+    gqlMongoBefore,
+    gqlMongoInserted,
+    gqlMongoUpdated,
+    gqlMongoDeleted,
+  ]) {
+    console.log(`${r.label} — Tempo: ${r.time.toFixed(2)}ms`);
+  }
 
   console.log("\n🚀 MariaDB");
 
@@ -101,6 +131,30 @@ async function run() {
       time: deletedMongo.time,
     },
     {
+      api: "GraphQL",
+      db: "MongoDB",
+      method: gqlMongoBefore.label,
+      time: gqlMongoBefore.time,
+    },
+    {
+      api: "GraphQL",
+      db: "MongoDB",
+      method: gqlMongoInserted.label,
+      time: gqlMongoInserted.time,
+    },
+    {
+      api: "GraphQL",
+      db: "MongoDB",
+      method: gqlMongoUpdated.label,
+      time: gqlMongoUpdated.time,
+    },
+    {
+      api: "GraphQL",
+      db: "MongoDB",
+      method: gqlMongoDeleted.label,
+      time: gqlMongoDeleted.time,
+    },
+    {
       api: "REST",
       db: "MariaDB",
       method: listBefore.label,
@@ -148,7 +202,7 @@ function saveCSV(results) {
     .join("\n");
 
   fs.writeFileSync(file, header + rows);
-  console.log(`📄 CSV gerado → benchmark_maria.csv`);
+  console.log(`📄 CSV gerado → benchmark.csv`);
 }
 
 await run();

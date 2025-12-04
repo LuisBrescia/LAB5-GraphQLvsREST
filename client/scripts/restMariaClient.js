@@ -42,7 +42,7 @@ export async function updateMany(ids) {
   }));
 
   const start = performance.now();
-  const res = await axios.put(`${API}/many`, { users });
+  const res = await axios.put(API, { users });
   const end = performance.now();
 
   return {
@@ -54,7 +54,7 @@ export async function updateMany(ids) {
 
 export async function deleteMany(ids) {
   const start = performance.now();
-  const res = await axios.delete(`${API}/many`, { data: { ids } });
+  const res = await axios.delete(API, { data: { ids } });
   const end = performance.now();
 
   return {

@@ -8,5 +8,5 @@ export async function connectMongo() {
     age: Number,
   });
 
-  return mongoose.model("User", UserSchema, "users"); // usa collection 'users'
+  return mongoose.model("User", UserSchema, "users");
 }

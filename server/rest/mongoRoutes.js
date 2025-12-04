@@ -13,7 +13,7 @@ export default (app, MongoUser) => {
   });
 
   app.put("/mongo/users", async (req, res) => {
-    const users = req.body; // precisa ser array!
+    const users = req.body;
 
     const ops = users.map((u) => ({
       updateOne: {
