@@ -2,14 +2,13 @@ import axios from "axios";
 
 const API = "http://localhost:4000/maria/users";
 
-// ================== LISTAR ==================
 export async function listUsers() {
   const start = performance.now();
   const res = await axios.get(API);
   const end = performance.now();
 
   return {
-    label: "REST MariaDB - GET USERS",
+    label: "GET x" + res.data.length,
     data: res.data,
     ids: res.data.map((u) => u.id),
     time: end - start,
@@ -17,58 +16,50 @@ export async function listUsers() {
   };
 }
 
-// ================== INSERIR EM LOTE ==================
-export async function addManyUsers() {
-  const sample = [
-    { name: "Teste 1", age: 22 },
-    { name: "Teste 2", age: 25 },
-    { name: "Teste 3", age: 30 },
-    { name: "Teste 4", age: 18 },
-    { name: "Teste 5", age: 27 },
-  ];
+export async function addManyUsers(count = 1000) {
+  const sample = Array.from({ length: count }).map((_, i) => ({
+    name: `MariaREST-${i}`,
+    age: Math.floor(Math.random() * 50) + 18,
+  }));
 
   const start = performance.now();
   await axios.post(API, sample);
   const end = performance.now();
 
   return {
-    label: "REST MariaDB - POST MANY",
+    label: "POST x" + count,
     created: sample,
     time: end - start,
     size: JSON.stringify(sample).length,
   };
 }
 
-// ================== ATUALIZAR EM LOTE ==================
 export async function updateMany(ids) {
-  const updates = ids.map((id, i) =>
-    axios.put(`${API}/${id}`, { name: `Atualizado ${i}`, age: 99 })
-  );
+  const users = ids.map((id) => ({
+    id,
+    name: "Atualizado REST",
+    age: Math.floor(Math.random() * 50) + 18,
+  }));
 
   const start = performance.now();
-  await Promise.all(updates);
+  const res = await axios.put(`${API}/many`, { users });
   const end = performance.now();
 
   return {
-    label: "REST MariaDB - PUT MANY",
-    updated: ids.length,
+    label: "PUT x" + ids.length,
     time: end - start,
-    size: JSON.stringify(updates).length,
+    updated: res.data.updatedCount,
   };
 }
 
-// ================== DELETAR EM LOTE ==================
 export async function deleteMany(ids) {
-  const deletions = ids.map((id) => axios.delete(`${API}/${id}`));
-
   const start = performance.now();
-  await Promise.all(deletions);
+  const res = await axios.delete(`${API}/many`, { data: { ids } });
   const end = performance.now();
 
   return {
-    label: "REST MariaDB - DELETE MANY",
-    deleted: ids.length,
+    label: "DELETE x" + ids.length,
     time: end - start,
-    size: JSON.stringify(deletions).length,
+    deleted: res.data.deletedCount,
   };
 }

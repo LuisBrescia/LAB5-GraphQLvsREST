@@ -71,31 +71,25 @@ export const mariaResolvers = (MariaPool) => ({
     // UPDATE MANY (somente os campos enviados)
     // =============================================================
     mariaUpdateMany: async (_, { users }) => {
-      let count = 0;
+      if (!users.length) return 0;
 
-      for (const u of users) {
-        const fields = [];
-        const params = [];
+      const ids = users.map((u) => u.id).join(",");
 
-        if (u.name !== undefined) {
-          fields.push("name=?");
-          params.push(u.name);
-        }
-        if (u.age !== undefined) {
-          fields.push("age=?");
-          params.push(u.age);
-        }
+      const nameCase = users
+        .map((u) => `WHEN ${u.id} THEN '${u.name}'`)
+        .join(" ");
+      const ageCase = users.map((u) => `WHEN ${u.id} THEN ${u.age}`).join(" ");
 
-        params.push(u.id);
+      const sql = `
+    UPDATE users
+    SET 
+      name = CASE id ${nameCase} END,
+      age  = CASE id ${ageCase} END
+    WHERE id IN (${ids})
+  `;
 
-        const [res] = await MariaPool.query(
-          `UPDATE users SET ${fields.join(", ")} WHERE id=?`,
-          params
-        );
-
-        count += res.affectedRows;
-      }
-      return count;
+      const [result] = await MariaPool.query(sql);
+      return result.affectedRows;
     },
 
     // =============================================================

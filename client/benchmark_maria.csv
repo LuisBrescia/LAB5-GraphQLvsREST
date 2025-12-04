@@ -1,0 +1,9 @@
+api,banco,metodo,tempo(ms)
+REST,MariaDB,GET x8520,15.26
+REST,MariaDB,POST x1000,12.49
+REST,MariaDB,PUT x1000,1.89
+REST,MariaDB,DELETE x1000,1.31
+GraphQL,MariaDB,GET x9520,35.70
+GraphQL,MariaDB,POST x1000,12.95
+GraphQL,MariaDB,PUT x1000,12.45
+GraphQL,MariaDB,DELETE x1000,5.35
