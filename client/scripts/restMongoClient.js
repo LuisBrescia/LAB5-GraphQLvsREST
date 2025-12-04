@@ -8,11 +8,12 @@ export async function listMongoUsers() {
   const end = performance.now();
 
   return {
-    label: "GET x" + res.data.length,
+    label: "GET",
     data: res.data,
     ids: res.data.map((u) => u._id),
     time: end - start,
     size: JSON.stringify(res.data).length,
+    items: res.data.length,
   };
 }
 

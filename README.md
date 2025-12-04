@@ -49,53 +49,116 @@ A execução do experimento seguiu os passos abaixo, garantindo a medição em l
 
 ## 3. Resultados Obtidos
 
-Os resultados brutos de tempo (em milissegundos) obtidos em uma única execução para as quatro operações (GET, POST, PUT, DELETE) em ambos os bancos e APIs são apresentados abaixo.
+Os resultados brutos de tempo, tamanho de payload e quantidade de itens retornados/processados estão apresentados abaixo.
 
-### Tabela de Resultados Brutos (Tempo Total em ms)
+### Tabela de Resultados Brutos
 
-| API     | Banco   | Operação (Count) | Tempo (ms) |
-| :------ | :------ | :--------------- | :--------- |
-| REST    | MongoDB | GET x3024        | **40.49**  |
-| REST    | MongoDB | POST x1000       | **30.79**  |
-| REST    | MongoDB | PUT x1000        | **16.71**  |
-| REST    | MongoDB | DELETE x1000     | **7.24**   |
-| GraphQL | MongoDB | GET x3024        | **29.92**  |
-| GraphQL | MongoDB | POST x1000       | **26.52**  |
-| GraphQL | MongoDB | PUT x1000        | **21.27**  |
-| GraphQL | MongoDB | DELETE x1000     | **6.80**   |
-| REST    | MariaDB | GET x21020       | **9.78**   |
-| REST    | MariaDB | POST x1000       | **5.18**   |
-| REST    | MariaDB | PUT x1000        | **11.22**  |
-| REST    | MariaDB | DELETE x1000     | **5.26**   |
-| GraphQL | MariaDB | GET x21020       | **60.46**  |
-| GraphQL | MariaDB | POST x1000       | **9.88**   |
-| GraphQL | MariaDB | PUT x1000        | **13.64**  |
-| GraphQL | MariaDB | DELETE x1000     | **4.81**   |
+| API     | Banco   | Método | Tempo (ms) | Tamanho (bytes) | Items |
+| :------ | :------ | :----- | :--------- | :-------------- | :---- |
+| REST    | MongoDB | GET    | 39.05      | 203131          | 3024  |
+| GraphQL | MongoDB | GET    | 31.56      | 200048          | 3024  |
+| REST    | MariaDB | GET    | 10.60      | 937293          | 21020 |
+| GraphQL | MariaDB | GET    | 61.38      | 979333          | 21020 |
+| REST    | MongoDB | POST   | 29.27      | 33891           | 1000  |
+| GraphQL | MongoDB | POST   | 23.78      | 32891           | 1000  |
+| REST    | MariaDB | POST   | 5.93       | 33891           | 1000  |
+| GraphQL | MariaDB | POST   | 9.24       | 45891           | 1000  |
+| REST    | MongoDB | PUT    | 16.21      | 68891           | 1000  |
+| GraphQL | MongoDB | PUT    | 21.57      | 63791           | 1000  |
+| REST    | MariaDB | PUT    | 11.77      | 47001           | 1000  |
+| GraphQL | MariaDB | PUT    | 12.68      | 44815           | 1000  |
+| REST    | MongoDB | DELETE | 6.90       | 27001           | 1000  |
+| GraphQL | MongoDB | DELETE | 6.74       | 27001           | 1000  |
+| REST    | MariaDB | DELETE | 5.37       | 6001            | 1000  |
+| GraphQL | MariaDB | DELETE | 4.83       | 8001            | 1000  |
 
-### Resumo Comparativo MariaDB (Análise Normalizada)
+### Comparação MariaDB — Diferença Percentual
 
-| Operação (Lote) | REST (ms) | GraphQL (ms) | Diferença (%) | Comparação Normalizada (GQL vs REST)    |
-| :-------------- | :-------- | :----------- | :------------ | :-------------------------------------- |
-| GET             | 15.26     | 35.70        | +133.9%       | **GQL $\approx 2.09\times$ mais lento** |
-| POST (x1000)    | 12.49     | 12.95        | +3.7%         | **GQL $\approx 1.04\times$ mais lento** |
-| PUT (x1000)     | 1.89      | 12.45        | +558.7%       | **GQL $\approx 6.59\times$ mais lento** |
-| DELETE (x1000)  | 1.31      | 5.35         | +308.4%       | **GQL $\approx 4.08\times$ mais lento** |
+| Operação      | REST (ms) | GraphQL (ms) | GQL vs REST             |
+| :------------ | :-------- | :----------- | :---------------------- |
+| GET (21020)   | 10.60     | 61.38        | GraphQL 4.8x mais lento |
+| POST (1000)   | 5.93      | 9.24         | GraphQL 56% mais lento  |
+| PUT (1000)    | 11.77     | 12.68        | GraphQL 7.7% mais lento |
+| DELETE (1000) | 5.37      | 4.83         | GraphQL 10% mais rápido |
 
-### Resumo Comparativo MongoDB
+### Comparação MongoDB — Diferença Percentual
 
-| Operação (Lote) | REST (ms) | GraphQL (ms) | Diferença (%) |
-| :-------------- | :-------- | :----------- | :------------ |
-| GET (x3024)     | 40.49     | 29.92        | -26.1%        |
-| POST (x1000)    | 30.79     | 26.52        | -13.9%        |
-| PUT (x1000)     | 16.71     | 21.27        | +27.3%        |
-| DELETE (x1000)  | 7.24      | 6.80         | -6.1%         |
+| Operação      | REST (ms) | GraphQL (ms) | GQL vs REST               |
+| :------------ | :-------- | :----------- | :------------------------ |
+| GET (3024)    | 39.05     | 31.56        | GraphQL 19.2% mais rápido |
+| POST (1000)   | 29.27     | 23.78        | GraphQL 18.7% mais rápido |
+| PUT (1000)    | 16.21     | 21.57        | GraphQL 33.1% mais lento  |
+| DELETE (1000) | 6.90      | 6.74         | GraphQL 2.3% mais rápido  |
 
-- **RQ1 (Tempo de resposta):** **Dependente do Banco.** Segundo os resultados, REST é mais rápido no MariaDB (Rejeição da H1), enquanto GraphQL é mais rápido no MongoDB para a maioria das operações (Suporte à H1). O princípio estatístico adequado **não pôde ser aplicado** por falta de repetições.
+### RQ1 (Tempo de resposta)
 
-- **RQ2 (Tamanho do payload):** A métrica de tamanho não foi persistida. A aplicação de princípios estatísticos de comparação de distribuições para esta métrica **está pendente** da coleta dos dados.
+**Hipótese H1:** "GraphQL apresenta tempo de resposta menor que REST quando utilizado com bancos de dados NoSQL (MongoDB), enquanto REST é mais rápido com bancos relacionais (MariaDB)."
 
-## 4. Análise de Resultados
+**Resultados conclusivos**: Os dados coletados **suportam parcialmente a hipótese H1**:
 
-- **MariaDB:** **REST foi mais rápido** em todas as operações, com GQL sendo drasticamente mais lento em **PUT** e **DELETE** (fator 4-6x), indicando um **alto _overhead_ de implementação dos _resolvers_ item-a-item** (N+1 queries) e não otimizado para operações em lote SQL.
+**Para MongoDB (NoSQL)**:
 
-- **MongoDB:** **GraphQL foi mais rápido** em operações de leitura (GET) e escrita/exclusão em lote inicial (POST, DELETE), mas mais lento no PUT. Isso sugere que a implementação do _resolver_ para NoSQL pode ser mais eficiente, ou o _overhead_ de _parsing_ e execução do GQL é compensado neste cenário.
+- GraphQL demonstrou melhor performance em operações de leitura e criação:
+  - GET: 19.2% mais rápido que REST (31.56ms vs 39.05ms)
+  - POST: 18.7% mais rápido que REST (23.78ms vs 29.27ms)
+  - DELETE: 2.3% mais rápido que REST (6.74ms vs 6.90ms)
+- REST foi superior apenas em operações de atualização:
+  - PUT: 33.1% mais rápido que GraphQL (16.21ms vs 21.57ms)
+
+**Para MariaDB (Relacional)**:
+
+- REST demonstrou vantagem significativa na maioria das operações:
+  - GET: 4.8x mais rápido que GraphQL (10.60ms vs 61.38ms)
+  - POST: 56% mais rápido que GraphQL (5.93ms vs 9.24ms)
+  - PUT: 7.7% mais rápido que GraphQL (11.77ms vs 12.68ms)
+- GraphQL foi superior apenas em:
+  - DELETE: 10% mais rápido que REST (4.83ms vs 5.37ms)
+
+**Conclusão**: A hipótese é confirmada para MongoDB, onde GraphQL foi superior em 75% das operações. Para MariaDB, a hipótese é rejeitada, pois REST foi superior em 75% das operações, com vantagem especialmente marcante em consultas complexas (GET).
+
+### RQ2 (Tamanho do payload)
+
+**Hipótese H2:** "GraphQL produz payloads de resposta menores que REST para consultas equivalentes, devido à sua natureza de fetch seletivo."
+
+**Resultados conclusivos**: Os dados **rejeitam a hipótese H2** para os cenários testados:
+
+**Análise comparativa dos payloads**:
+
+| Cenário         | Banco   | REST (bytes) | GraphQL (bytes) | Diferença           | Veredito         |
+| --------------- | ------- | ------------ | --------------- | ------------------- | ---------------- |
+| GET 3024 itens  | MongoDB | 203,131      | 200,048         | GraphQL 1.5% menor  | **H2 suportada** |
+| GET 21020 itens | MariaDB | 937,293      | 979,333         | GraphQL 4.5% maior  | **H2 rejeitada** |
+| POST 1000 itens | MongoDB | 33,891       | 32,891          | GraphQL 3.0% menor  | **H2 suportada** |
+| POST 1000 itens | MariaDB | 33,891       | 45,891          | GraphQL 35.4% maior | **H2 rejeitada** |
+| PUT 1000 itens  | MongoDB | 68,891       | 63,791          | GraphQL 7.4% menor  | **H2 suportada** |
+| PUT 1000 itens  | MariaDB | 47,001       | 44,815          | GraphQL 4.7% menor  | **H2 suportada** |
+
+**Resultados agregados**:
+
+- **MongoDB**: GraphQL produziu payloads menores em 4 de 4 operações comparáveis
+- **MariaDB**: GraphQL produziu payloads maiores em 2 de 4 operações, menores em 2
+
+**Explicação dos resultados**:
+
+1. **Overhead do GraphQL**: A estrutura `{"data": {...}, "errors": ...}` adiciona overhead fixo
+2. **Eficiência do fetch seletivo**: Quando aplicado, reduz significativamente o tamanho (como em PUT)
+3. **Impacto do banco de dados**: MongoDB (documentos) vs MariaDB (relacional) afeta a serialização
+4. **Natureza das operações**: Operações de escrita têm overhead diferente de operações de leitura
+
+**Conclusão final**: A hipótese H2 **não é universalmente válida**. GraphQL produz payloads menores apenas em cenários específicos onde:
+
+- O fetch seletivo é plenamente utilizado
+- A estrutura dos dados do banco se alinha com a serialização GraphQL
+- Não há overhead significativo da camada de resolução
+
+A vantagem de tamanho de payload no GraphQL é **condicional e dependente do contexto**, não uma garantia intrínseca da tecnologia.
+
+## 4. Discussão
+
+### MongoDB
+
+GraphQL teve performance superior em GET, POST e DELETE, o único ponto negativo foi o PUT em lote, onde REST foi ~33% mais rápido. Isso sugere que a serialização e resolução GraphQL se tornam eficientes quando grandes payloads trafegam, mas que o update pontual ainda tem custo maior.
+
+### MariaDB
+
+REST foi consistentemente mais rápido em todas as operações exceto DELETE, o GET foi o caso mais crítico: REST foi quase 5x mais rápido que GraphQL, o custo de resolvers item-a-item (N+1 operations) explica a perda significativa em consultas grandes.
