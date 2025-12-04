@@ -1,31 +1,47 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:4000/graphql";
+const API = "http://localhost:4000/graphql";
 
-export async function fetchUsersGraphQL() {
-  const query = {
-    query: `
-      query {
-        users {
-          id
-          name
-          age
-        }
-      }
-    `,
-  };
-
+async function gql(query) {
   const start = performance.now();
-
-  const res = await axios.post(API_BASE, query);
-
+  const res = await axios.post(API, { query });
   const end = performance.now();
 
-  const data = res.data.data.users;
+  const data = Object.values(res.data.data)[0];
 
   return {
-    data,
     time: end - start,
     size: JSON.stringify(data).length,
+    data,
   };
+}
+
+// MongoDB GraphQL
+export async function fetchMongoGQL() {
+  const q = `
+    query {
+      mongoUsers {
+        id
+        name
+        age
+      }
+    }
+  `;
+  const { time, size, data } = await gql(q);
+  return { label: "MongoDB GraphQL", time, size, data };
+}
+
+// MariaDB GraphQL
+export async function fetchMariaGQL() {
+  const q = `
+    query {
+      mariaUsers {
+        id
+        name
+        age
+      }
+    }
+  `;
+  const { time, size, data } = await gql(q);
+  return { label: "MariaDB GraphQL", time, size, data };
 }

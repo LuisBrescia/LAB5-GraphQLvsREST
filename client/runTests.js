@@ -1,24 +1,23 @@
-import { fetchUsersRest } from "./scripts/restClient.js";
-import { fetchUsersGraphQL } from "./scripts/gqlClient.js";
+import { fetchMongoRest, fetchMariaRest } from "./scripts/restClient.js";
+import { fetchMongoGQL, fetchMariaGQL } from "./scripts/gqlClient.js";
 
 async function run() {
-  console.log("🔵 Rodando teste REST...");
-  const rest = await fetchUsersRest();
+  console.log("🚀 Testando performance...\n");
 
-  console.log("🟣 Rodando teste GraphQL...");
-  const gql = await fetchUsersGraphQL();
+  const results = [
+    await fetchMongoRest(),
+    await fetchMongoGQL(),
+    await fetchMariaRest(),
+    await fetchMariaGQL(),
+  ];
 
-  console.log("========== RESULTADOS ==========");
+  console.log("========== RESULTADOS ==========\n");
 
-  console.log("REST:");
-  console.log(`Tempo: ${rest.time.toFixed(2)} ms`);
-  console.log(`Tamanho: ${rest.size} bytes`);
-
-  console.log("");
-
-  console.log("GraphQL:");
-  console.log(`Tempo: ${gql.time.toFixed(2)} ms`);
-  console.log(`Tamanho: ${gql.size} bytes`);
+  for (const result of results) {
+    console.log(`${result.label}:`);
+    console.log(`⌚ Tempo:  ${result.time.toFixed(2)} ms`);
+    console.log(`📦 Tamanho: ${result.size} bytes\n`);
+  }
 }
 
 await run();

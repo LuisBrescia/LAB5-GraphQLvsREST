@@ -139,37 +139,8 @@ Ainda será ajustado, mas inicialmente:
 
 ## Preparação do Experimento
 
-Nesta sprint, preparamos o ambiente e estruturamos o plano para execução
-do experimento.
+Após a definição teórica do experimento, iniciou-se o processo de preparação do ambiente necessário para coleta dos dados. Para isso, foi desenvolvido um servidor utilizado como base para os testes, executando simultaneamente uma API REST e uma API GraphQL, garantindo que ambas operassem em condições idênticas para que os resultados obtidos fossem comparáveis.
 
-### **O que será desenvolvido para a Sprint 2**
+A aplicação foi estruturada em Node.js e configurada para expor dois pontos de acesso distintos: um endpoint REST tradicional e um endpoint GraphQL, ambos consumindo os mesmos dados e respondendo com o mesmo formato. Foram implementados scripts independentes responsáveis por enviar requisições para cada modelo de API, medir automaticamente o tempo necessário para obtenção da resposta e calcular o tamanho do payload retornado. Esses scripts serão utilizados posteriormente para a execução repetida das requisições e geração das medições experimentais.
 
-- Uma API contendo:
-  - **/rest/...** (endpoints REST tradicionais)
-  - **/graphql** (resolver GraphQL equivalente)
-- Ambas acessando **exatamente a mesma fonte de dados**
-- Scripts para:
-  - disparar múltiplas requisições
-  - registrar **tempo de resposta**
-  - registrar **tamanho do payload**
-- Ferramentas que podem ser utilizadas:
-  - Node.js + Express ou NestJS
-  - Apollo Server
-  - Axios, autocannon, k6, ou scripts próprios para gerar carga
-  - Python + Pandas para análise dos dados
-
-## Entregáveis da Sprint 1
-
-- Definição do desenho completo do experimento\
-- Hipóteses e variáveis\
-- Planejamento dos tratamentos\
-- Descrição de como o ambiente experimental será montado\
-- Rascunho da API (REST e GraphQL)
-
-## Próximos Passos --- Sprint 2
-
-- Implementar a API REST\
-- Implementar a API GraphQL\
-- Criar scripts de medição\
-- Rodar os primeiros testes\
-- Exportar dados para arquivo CSV
+Para a persistência e fornecimento dos dados utilizados nas consultas, foi configurado suporte a MariaDB e MongoDB, permitindo flexibilidade no armazenamento e viabilizando futuros tratamentos com variação de fonte de dados. Com o ambiente finalizado — servidor ativo, rotas funcionando, medições automatizadas e bancos disponíveis — o experimento encontra-se pronto para a fase de execução e coleta efetiva dos resultados, que constituirá o próximo passo do estudo.
