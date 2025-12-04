@@ -2,9 +2,7 @@
 
 Este relatório finaliza a Sprint 2, que abrangeu a execução do experimento controlado, a coleta de dados de tempo de resposta e a análise preliminar dos resultados para a comparação entre APIs **GraphQL** e **REST** em uma aplicação **Node.js** com banco de dados **MariaDB** e **MongoDB**.
 
----
-
-## 🚀 Introdução e Hipóteses
+## 1. Introdução
 
 O experimento foi desenhado para comparar a performance de APIs baseadas nos paradigmas **GraphQL** e **REST**, utilizando a mesma lógica de aplicação e a mesma infraestrutura de banco de dados (MariaDB/MongoDB).
 
@@ -20,9 +18,7 @@ Baseado na literatura sobre os paradigmas e na flexibilidade do GraphQL em evita
 - **RQ1:** Respostas às consultas GraphQL são mais rápidas do que respostas às consultas REST?
 - **RQ2:** Respostas às consultas GraphQL têm tamanho menor do que respostas às consultas REST?
 
----
-
-## 🛠️ Metodologia Experimental
+## 2. Metodologia
 
 ### Ambiente de Execução e Configuração (Reprodutibilidade)
 
@@ -51,17 +47,7 @@ A execução do experimento seguiu os passos abaixo, garantindo a medição em l
     - Executar o script de _benchmark_: `npm run test`.
     - O _script_ registra as medições no arquivo `benchmark.csv` na raiz do projeto.
 
-### Limitações Metodológicas
-
-A execução atual (Sprint 2) possui **limitações críticas** que impactam a validade estatística e a resposta completa às RQs:
-
-1.  **Medições Únicas (_Single Trial_):** A coleta de dados foi realizada em uma única execução para cada tratamento, impedindo a aplicação de testes estatísticos robustos e a análise da variância.
-2.  **Inconclusividade da RQ2:** A métrica de **tamanho do _payload_ (bytes)**, essencial para responder à RQ2, **não foi persistida** no arquivo `benchmark.csv`.
-3.  **Contagens Não Equivalentes:** O número de registros retornados no teste _GET_ diferiu entre os tratamentos REST e GraphQL.
-
----
-
-## 📊 Resultados Obtidos
+## 3. Resultados Obtidos
 
 Os resultados brutos de tempo (em milissegundos) obtidos em uma única execução para as quatro operações (GET, POST, PUT, DELETE) em ambos os bancos e APIs são apresentados abaixo.
 
@@ -86,12 +72,6 @@ Os resultados brutos de tempo (em milissegundos) obtidos em uma única execuçã
 | GraphQL | MariaDB | PUT x1000        | **13.64**  |
 | GraphQL | MariaDB | DELETE x1000     | **4.81**   |
 
----
-
-## 🔍 Análise e Discussão dos Resultados
-
-Devido à limitação de medições únicas (falta de N repetições), a análise é **descritiva** e **preliminar**.
-
 ### Resumo Comparativo MariaDB (Análise Normalizada)
 
 | Operação (Lote) | REST (ms) | GraphQL (ms) | Diferença (%) | Comparação Normalizada (GQL vs REST)    |
@@ -110,35 +90,12 @@ Devido à limitação de medições únicas (falta de N repetições), a anális
 | PUT (x1000)     | 16.71     | 21.27        | +27.3%        |
 | DELETE (x1000)  | 7.24      | 6.80         | -6.1%         |
 
-### Discussão Principal
+- **RQ1 (Tempo de resposta):** **Dependente do Banco.** Segundo os resultados, REST é mais rápido no MariaDB (Rejeição da H1), enquanto GraphQL é mais rápido no MongoDB para a maioria das operações (Suporte à H1). O princípio estatístico adequado **não pôde ser aplicado** por falta de repetições.
+
+- **RQ2 (Tamanho do payload):** A métrica de tamanho não foi persistida. A aplicação de princípios estatísticos de comparação de distribuições para esta métrica **está pendente** da coleta dos dados.
+
+## 4. Análise de Resultados
 
 - **MariaDB:** **REST foi mais rápido** em todas as operações, com GQL sendo drasticamente mais lento em **PUT** e **DELETE** (fator 4-6x), indicando um **alto _overhead_ de implementação dos _resolvers_ item-a-item** (N+1 queries) e não otimizado para operações em lote SQL.
+
 - **MongoDB:** **GraphQL foi mais rápido** em operações de leitura (GET) e escrita/exclusão em lote inicial (POST, DELETE), mas mais lento no PUT. Isso sugere que a implementação do _resolver_ para NoSQL pode ser mais eficiente, ou o _overhead_ de _parsing_ e execução do GQL é compensado neste cenário.
-- **RQ1 (Tempo):** **Inconclusivo e Dependente do Banco/Implementação.** Não há suporte estatístico formal.
-- **RQ2 (Tamanho):** **Inconclusivo.** A métrica de tamanho não foi persistida no _CSV_.
-
----
-
-## 🛑 Limitações e Próximos Passos (Plano de Análise Estatística)
-
-Para uma conclusão robusta, é necessário:
-
-1.  **Replicar Experimento (N $\geq 30$):** Realizar múltiplas repetições por tratamento.
-2.  **Persistir Métrica RQ2:** Modificar o _runTests.js_ para **registrar e salvar o tamanho do _payload_ (bytes)** no _CSV_.
-3.  **Normalizar Contagens:** Garantir o mesmo número de registros retornados no GET.
-4.  **Otimizar _Resolvers_:** Perfilar e otimizar as operações em lote (_UpdateMany_, _DeleteMany_) do GraphQL para usar comandos nativos de lote (ex: SQL `UPDATE ... WHERE id IN (...)`).
-
-### Plano de Análise Estatística Proposto
-
-Com a coleta de $N \geq 30$ medições:
-
-- **Teste de Normalidade:** Shapiro-Wilk.
-- **Comparação de Médias/Medianas:**
-  - Se Normal: **t-test de duas amostras independentes**.
-  - Se Não-Normal: **Mann-Whitney U** (ou Wilcoxon rank-sum).
-- **Tamanho do Efeito:** Calcular o **Cohen's $d$** para quantificar a magnitude da diferença de performance.
-- **Visualização:** _Boxplots_ e gráficos de barras com Intervalos de Confiança.
-
-## 🔚 Conclusão
-
-A execução da Sprint 2 forneceu evidências **preliminares** de que a performance relativa **depende do Banco de Dados** e da **qualidade da implementação** do _resolver_. O **overhead** de _parsing_/execução do GraphQL foi um fator limitante em operações de atualização em massa no MariaDB. Para uma conclusão estatística formal e validação das vantagens teóricas do GraphQL (menor _payload_), são essenciais as **múltiplas repetições** e o **registro da métrica de tamanho do _payload_**.
