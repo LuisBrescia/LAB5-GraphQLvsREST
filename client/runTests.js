@@ -194,7 +194,7 @@ async function run() {
 }
 
 function saveCSV(results) {
-  const file = path.join(process.cwd(), "benchmark_maria.csv");
+  const file = path.join(process.cwd(), "benchmark.csv");
 
   const header = "api,banco,metodo,tempo(ms)\n";
   const rows = results
