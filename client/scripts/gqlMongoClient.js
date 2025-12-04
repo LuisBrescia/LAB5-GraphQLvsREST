@@ -16,16 +16,16 @@ async function execGQL(query, variables = {}, extract) {
   };
 }
 
-/* ================= GET ================= */
 export const fetchMongoGQL = () =>
   execGQL(`query { mongoUsers { id name age } }`, {}, (d) => d.mongoUsers).then(
     (r) => ({
       ...r,
-      label: `GET x${r.data.length}`,
+      label: `GET`,
+      items: r.data.length,
+      size: JSON.stringify(r.data).length,
     })
   );
 
-/* ================= INSERT MANY ================= */
 export const postMongoGQL = (users) =>
   execGQL(
     `mutation($users: [MongoUserInput!]!) {
@@ -35,7 +35,6 @@ export const postMongoGQL = (users) =>
     (d) => d.mongoAddMany
   ).then((r) => ({ ...r, label: "MongoDB GraphQL POST Many" }));
 
-/* ================= UPDATE MANY ================= */
 export const putMongoGQL = (users) =>
   execGQL(
     `mutation($users:[MongoUserUpdateInput!]!) {
@@ -45,7 +44,6 @@ export const putMongoGQL = (users) =>
     (d) => d.mongoUpdateMany
   ).then((r) => ({ ...r, label: "MongoDB GraphQL PUT Many" }));
 
-/* ================= DELETE MANY ================= */
 export const deleteMongoGQL = (ids) =>
   execGQL(
     `mutation($ids:[ID!]!) { mongoDeleteMany(ids:$ids) }`,
@@ -53,7 +51,6 @@ export const deleteMongoGQL = (ids) =>
     (d) => d.mongoDeleteMany
   ).then((r) => ({ ...r, label: "MongoDB GraphQL DELETE Many" }));
 
-/* =============== TESTES MASSIVOS =============== */
 export async function addManyMongoGQL(count = 500) {
   const users = Array.from({ length: count }, (_, i) => ({
     name: `MongoGQL-${i}`,
@@ -65,9 +62,10 @@ export async function addManyMongoGQL(count = 500) {
   const end = performance.now();
 
   return {
-    label: `POST x${count}`,
+    label: `POST`,
+    items: users.length,
     time: end - start,
-    size: JSON.stringify(data).length,
+    size: JSON.stringify(users).length,
     ids: data.map((u) => u.id),
   };
 }
@@ -80,10 +78,20 @@ export async function updateManyMongoGQL(ids) {
   }));
 
   const { time } = await putMongoGQL(users);
-  return { label: `PUT x${ids.length}`, time };
+  return {
+    label: `PUT`,
+    items: users.length,
+    size: JSON.stringify(users).length,
+    time,
+  };
 }
 
 export async function deleteManyMongoGQL(ids) {
   const { time } = await deleteMongoGQL(ids);
-  return { label: `DELETE x${ids.length}`, time };
+  return {
+    label: `DELETE`,
+    items: ids.length,
+    size: JSON.stringify(ids).length,
+    time,
+  };
 }

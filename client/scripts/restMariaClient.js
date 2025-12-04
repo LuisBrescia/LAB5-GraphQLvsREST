@@ -8,7 +8,8 @@ export async function listUsers() {
   const end = performance.now();
 
   return {
-    label: "GET x" + res.data.length,
+    label: "GET",
+    items: res.data.length,
     data: res.data,
     ids: res.data.map((u) => u.id),
     time: end - start,
@@ -27,7 +28,8 @@ export async function addManyUsers(count = 1000) {
   const end = performance.now();
 
   return {
-    label: "POST x" + count,
+    label: "POST",
+    items: sample.length,
     created: sample,
     time: end - start,
     size: JSON.stringify(sample).length,
@@ -46,7 +48,9 @@ export async function updateMany(ids) {
   const end = performance.now();
 
   return {
-    label: "PUT x" + ids.length,
+    label: "PUT",
+    items: users.length,
+    size: JSON.stringify(users).length,
     time: end - start,
     updated: res.data.updatedCount,
   };
@@ -58,7 +62,9 @@ export async function deleteMany(ids) {
   const end = performance.now();
 
   return {
-    label: "DELETE x" + ids.length,
+    label: "DELETE",
+    items: ids.length,
+    size: JSON.stringify(ids).length,
     time: end - start,
     deleted: res.data.deletedCount,
   };

@@ -20,7 +20,9 @@ export const fetchMariaGQL = async () =>
   execGQL(`query { mariaUsers { id name age } }`, {}, (d) => d.mariaUsers).then(
     (r) => ({
       ...r,
-      label: `GET x${r.data.length}`,
+      label: `GET`,
+      items: r.data.length,
+      size: JSON.stringify(r.data).length,
     })
   );
 
@@ -31,7 +33,7 @@ export const postMariaGQL = async (users) =>
      }`,
     { users },
     (d) => d.mariaAddMany
-  ).then((r) => ({ ...r, label: "MariaDB GraphQL POST Many" }));
+  ).then((r) => ({ ...r }));
 
 export const putMariaGQL = async (users) =>
   execGQL(
@@ -40,14 +42,14 @@ export const putMariaGQL = async (users) =>
     }`,
     { users },
     (d) => d.mariaUpdateMany
-  ).then((r) => ({ ...r, label: "MariaDB GraphQL PUT Many" }));
+  ).then((r) => ({ ...r }));
 
 export const deleteMariaGQL = async (ids) =>
   execGQL(
     `mutation($ids:[ID!]!) { mariaDeleteMany(ids:$ids) }`,
     { ids },
     (d) => d.mariaDeleteMany
-  ).then((r) => ({ ...r, label: "MariaDB GraphQL DELETE Many" }));
+  ).then((r) => ({ ...r }));
 
 export async function addManyMariaGQL(count = 500) {
   const users = Array.from({ length: count }, (_, i) => ({
@@ -60,7 +62,8 @@ export async function addManyMariaGQL(count = 500) {
   const end = performance.now();
 
   return {
-    label: `POST x${count}`,
+    label: `POST`,
+    items: users.length,
     time: end - start,
     size: JSON.stringify(data).length,
     ids: data.map((u) => u.id),
@@ -75,10 +78,20 @@ export async function updateManyMariaGQL(ids) {
   }));
 
   const { time } = await putMariaGQL(users);
-  return { label: `PUT x${ids.length}`, time };
+  return {
+    label: `PUT`,
+    items: users.length,
+    size: JSON.stringify(users).length,
+    time,
+  };
 }
 
 export async function deleteManyMariaGQL(ids) {
   const { time } = await deleteMariaGQL(ids);
-  return { label: `DELETE x${ids.length}`, time };
+  return {
+    label: `DELETE`,
+    items: ids.length,
+    size: JSON.stringify(ids).length,
+    time,
+  };
 }

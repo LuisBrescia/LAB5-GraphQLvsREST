@@ -27,7 +27,8 @@ export async function addManyMongo(count = 1000) {
   const end = performance.now();
 
   return {
-    label: "POST x" + count,
+    label: "POST",
+    items: sample.length,
     created: count,
     time: end - start,
     size: JSON.stringify(sample).length,
@@ -46,7 +47,8 @@ export async function updateManyMongo(ids) {
   const end = performance.now();
 
   return {
-    label: "PUT x" + ids.length,
+    label: "PUT",
+    items: users.length,
     updated: ids.length,
     time: end - start,
     size: JSON.stringify(users).length,
@@ -59,7 +61,8 @@ export async function deleteManyMongo(ids) {
   const end = performance.now();
 
   return {
-    label: "DELETE x" + ids.length,
+    label: "DELETE",
+    items: ids.length,
     deleted: ids.length,
     time: end - start,
     size: JSON.stringify(ids).length,
