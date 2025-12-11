@@ -4,6 +4,13 @@ import path from "node:path";
 import { createRestClient } from "./scripts/restClient.js";
 import { createGQLClient } from "./scripts/gqlClient.js";
 
+// interface Result {
+//   label: string;
+//   time: number;
+//   size: number;
+//   ids?: string[];
+// }
+
 const dbs = [
   {
     name: "MongoDB",
@@ -20,9 +27,10 @@ const dbs = [
 ];
 
 const logResult = (r) => {
-  const msg = `${r.label} — Tempo: ${r.time.toFixed(2)}ms -- Size: ${
-    r.size
-  } bytes`;
+  const msg = `
+  ${r.label} 
+  -- Tempo: ${r.time.toFixed(2)}ms -- Items: ${r.items} -- Size: ${r.size} bytes
+  `;
 
   console.log(msg);
 };
@@ -45,43 +53,36 @@ async function run() {
     console.log(`\n🚀 ${db.name}`);
 
     // ------------------------------------------------ REST
-    const before = await db.rest.list();
     const inserted = await db.rest.addMany(1000);
-    const after = await db.rest.list();
+    const list = await db.rest.list();
 
-    const newIds = after.data
-      .map((u) => u[db.idField])
-      .filter((id) => !before.ids.includes(id));
+    const newIds = list.data.map((u) => u[db.idField]);
 
     const updated = await db.rest.updateMany(newIds);
     const deleted = await db.rest.deleteMany(newIds);
 
     console.log("\n=========== RESULTADOS REST ===========\n");
-    for (const r of [before, inserted, updated, deleted]) {
+    for (const r of [inserted, list, updated, deleted]) {
       logResult(r);
       push("REST", db.name, r);
     }
 
     // ------------------------------------------------ GraphQL
-    const gqlBefore = await db.gql.fetchMany();
     const gqlInserted = await db.gql.addMany(1000);
-    const gqlAfter = await db.gql.fetchMany();
+    const gqlList = await db.gql.fetchMany();
 
-    const gqlNewIds = gqlAfter.data
-      .map((u) => u.id)
-      .filter((id) => !gqlBefore.data.some((x) => x.id == id));
+    const gqlNewIds = gqlList.data.map((u) => u.id);
 
     const gqlUpdated = await db.gql.updateMany(gqlNewIds);
     const gqlDeleted = await db.gql.deleteMany(gqlNewIds);
 
     console.log("\n=========== RESULTADOS GraphQL ===========\n");
-    for (const r of [gqlBefore, gqlInserted, gqlUpdated, gqlDeleted]) {
+    for (const r of [gqlInserted, gqlList, gqlUpdated, gqlDeleted]) {
       logResult(r);
       push("GraphQL", db.name, r);
     }
   }
 
-  console.log("\n🔥 Teste finalizado com sucesso\n");
   saveCSV(results);
 }
 
