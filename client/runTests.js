@@ -1,21 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import {
-  listUsers,
-  addManyUsers,
-  updateMany,
-  deleteMany,
-} from "./scripts/restMariaClient.js";
-
-import {
-  listMongoUsers,
-  addManyMongo,
-  updateManyMongo,
-  deleteManyMongo,
-} from "./scripts/restMongoClient.js";
-
+import { createRestClient } from "./scripts/restClient.js";
 import { createGQLClient } from "./scripts/gqlClient.js";
+
+const mariaREST = createRestClient("maria", "id");
+const mongoREST = createRestClient("mongo", "_id");
 
 const mariaGQL = createGQLClient("maria");
 const mongoGQL = createGQLClient("mongo");
@@ -23,15 +13,15 @@ const mongoGQL = createGQLClient("mongo");
 async function run() {
   console.log("\n🚀 MongoDB");
 
-  const listBeforeMongo = await listMongoUsers();
-  const insertedMongo = await addManyMongo(1000);
-  const listAfterInsertMongo = await listMongoUsers();
+  const listBeforeMongo = await mongoREST.list();
+  const insertedMongo = await mongoREST.addMany(1000);
+  const listAfterInsertMongo = await mongoREST.list();
 
   const newIdsMongo = listAfterInsertMongo.data
     .map((u) => u._id)
     .filter((id) => !listBeforeMongo.ids.includes(id));
-  const updatedMongo = await updateManyMongo(newIdsMongo);
-  const deletedMongo = await deleteManyMongo(newIdsMongo);
+  const updatedMongo = await mongoREST.updateMany(newIdsMongo);
+  const deletedMongo = await mongoREST.deleteMany(newIdsMongo);
 
   console.log("\n=========== RESULTADOS REST ===========\n");
   for (const r of [listBeforeMongo, insertedMongo, updatedMongo, deletedMongo])
@@ -66,16 +56,16 @@ async function run() {
 
   console.log("\n🚀 MariaDB");
 
-  const listBefore = await listUsers();
-  const inserted = await addManyUsers(1000);
-  const listAfterInsert = await listUsers();
+  const listBefore = await mariaREST.list();
+  const inserted = await mariaREST.addMany(1000);
+  const listAfterInsert = await mariaREST.list();
 
   const newIds = listAfterInsert.data
     .map((u) => u.id)
     .filter((id) => !listBefore.ids.includes(id));
 
-  const updated = await updateMany(newIds);
-  const deleted = await deleteMany(newIds);
+  const updated = await mariaREST.updateMany(newIds);
+  const deleted = await mariaREST.deleteMany(newIds);
 
   console.log("\n=========== RESULTADOS REST ===========\n");
   for (const r of [listBefore, inserted, updated, deleted])
