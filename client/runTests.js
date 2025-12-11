@@ -4,13 +4,7 @@ import path from "node:path";
 import { createRestClient } from "./scripts/restClient.js";
 import { createGQLClient } from "./scripts/gqlClient.js";
 
-// interface Result {
-//   label: string;
-//   time: number;
-//   size: number;
-//   ids?: string[];
-// }
-
+const RUNS = 10; // quantas vezes cada benchmark será executado
 const SIZES = [100, 500, 1_000];
 
 const dbs = [
@@ -34,16 +28,10 @@ const dbs = [
   },
 ];
 
-const logResult = (r) => {
-  const msg = `
-  ${r.label} 
-  -- Tempo: ${r.time.toFixed(2)}ms -- Items: ${r.items} -- Size: ${r.size} bytes
-  `;
-
-  console.log(msg);
-};
-
-async function run(count) {
+// ------------------------------------------------
+// Função antiga, agora isolada: roda 1 benchmark
+// ------------------------------------------------
+async function runSingle(count) {
   const results = [];
 
   const push = (api, db, r) => {
@@ -60,22 +48,19 @@ async function run(count) {
   for (const db of dbs) {
     console.log(`\n🚀 ${db.name}`);
 
-    // * Rest
+    // REST
     const inserted = await db.rest.addMany(count);
     const list = await db.rest.list();
-
     const newIds = list.data.map((u) => u[db.idField]);
 
     const updated = await db.rest.updateMany(newIds);
     const deleted = await db.rest.deleteMany(newIds);
 
-    console.log("\n=========== RESULTADOS REST ===========\n");
     for (const r of [inserted, list, updated, deleted]) {
-      logResult(r);
       push("REST", db.name, r);
     }
 
-    // * GraphQL
+    // GraphQL
     const gqlInserted = await db.gql.addMany(count);
     const gqlList = await db.gql.fetchMany();
 
@@ -84,16 +69,68 @@ async function run(count) {
     const gqlUpdated = await db.gql.updateMany(gqlNewIds);
     const gqlDeleted = await db.gql.deleteMany(gqlNewIds);
 
-    console.log("\n=========== RESULTADOS GraphQL ===========\n");
     for (const r of [gqlInserted, gqlList, gqlUpdated, gqlDeleted]) {
-      logResult(r);
       push("GraphQL", db.name, r);
     }
   }
 
-  saveCSV(results, count);
+  return results;
 }
 
+// ------------------------------------------------
+// Média de todas execuções
+// ------------------------------------------------
+function averageResults(runs) {
+  const flat = runs.flat();
+
+  const groups = {};
+
+  for (const r of flat) {
+    const key = `${r.api}|${r.db}|${r.method}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  }
+
+  const averaged = [];
+
+  for (const [key, items] of Object.entries(groups)) {
+    const [api, db, method] = key.split("|");
+
+    const avg = (field) =>
+      items.reduce((acc, x) => acc + x[field], 0) / items.length;
+
+    averaged.push({
+      api,
+      db,
+      method,
+      time: avg("time"),
+      size: avg("size"),
+      items: items[0].items,
+    });
+  }
+
+  return averaged;
+}
+
+// ------------------------------------------------
+// Loop principal para cada tamanho
+// ------------------------------------------------
+async function runAll(count) {
+  const all = [];
+
+  for (let i = 0; i < RUNS; i++) {
+    console.log(`\n▶ Execução ${i + 1}/${RUNS} para ${count} items`);
+    const res = await runSingle(count);
+    all.push(res);
+  }
+
+  const averaged = averageResults(all);
+  saveCSV(averaged, count);
+}
+
+// ------------------------------------------------
+// Salva CSV com a média final
+// ------------------------------------------------
 function saveCSV(results, count) {
   const file = path.join(process.cwd(), `benchmark_${count}_items.csv`);
 
@@ -101,15 +138,20 @@ function saveCSV(results, count) {
   const rows = results
     .map(
       (r) =>
-        `${r.api},${r.db},${r.method},${r.time.toFixed(2)},${r.size},${r.items}`
+        `${r.api},${r.db},${r.method},${r.time.toFixed(2)},${r.size.toFixed(
+          0
+        )},${r.items}`
     )
     .join("\n");
 
   fs.writeFileSync(file, header + rows);
-  console.log("📄 CSV gerado → benchmark.csv");
+  console.log(`📄 CSV gerado → benchmark_${count}_items.csv`);
 }
 
+// -----------------------------------------------
+// Execução final
+// -----------------------------------------------
 for (const size of SIZES) {
-  console.log(`\n=== Rodando benchmark com ${size} items ===`);
-  await run(size);
+  console.log(`\n=== Rodando média (${RUNS} execuções) com ${size} items ===`);
+  await runAll(size);
 }
