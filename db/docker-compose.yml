@@ -23,4 +23,3 @@ services:
       - "3306:3306"
     volumes:
       - ./mariadb/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-      - ./mariadb/seed-users.sql:/docker-entrypoint-initdb.d/02-seed-users.sql:ro

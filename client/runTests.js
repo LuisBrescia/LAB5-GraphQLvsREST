@@ -11,6 +11,8 @@ import { createGQLClient } from "./scripts/gqlClient.js";
 //   ids?: string[];
 // }
 
+const SIZES = [100, 500, 1_000];
+
 const dbs = [
   {
     name: "MongoDB",
@@ -35,7 +37,7 @@ const logResult = (r) => {
   console.log(msg);
 };
 
-async function run() {
+async function run(count) {
   const results = [];
 
   const push = (api, db, r) => {
@@ -52,8 +54,8 @@ async function run() {
   for (const db of dbs) {
     console.log(`\n🚀 ${db.name}`);
 
-    // ------------------------------------------------ REST
-    const inserted = await db.rest.addMany(1000);
+    // * Rest
+    const inserted = await db.rest.addMany(count);
     const list = await db.rest.list();
 
     const newIds = list.data.map((u) => u[db.idField]);
@@ -67,8 +69,8 @@ async function run() {
       push("REST", db.name, r);
     }
 
-    // ------------------------------------------------ GraphQL
-    const gqlInserted = await db.gql.addMany(1000);
+    // * GraphQL
+    const gqlInserted = await db.gql.addMany(count);
     const gqlList = await db.gql.fetchMany();
 
     const gqlNewIds = gqlList.data.map((u) => u.id);
@@ -83,11 +85,11 @@ async function run() {
     }
   }
 
-  saveCSV(results);
+  saveCSV(results, count);
 }
 
-function saveCSV(results) {
-  const file = path.join(process.cwd(), "benchmark.csv");
+function saveCSV(results, count) {
+  const file = path.join(process.cwd(), `benchmark_${count}_items.csv`);
 
   const header = "api,banco,metodo,tempo(ms),tamanho,items\n";
   const rows = results
@@ -101,4 +103,7 @@ function saveCSV(results) {
   console.log("📄 CSV gerado → benchmark.csv");
 }
 
-await run();
+for (const size of SIZES) {
+  console.log(`\n=== Rodando benchmark com ${size} items ===`);
+  await run(size);
+}
