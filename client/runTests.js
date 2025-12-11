@@ -15,19 +15,10 @@ import {
   deleteManyMongo,
 } from "./scripts/restMongoClient.js";
 
-import {
-  fetchMariaGQL,
-  addManyMariaGQL,
-  updateManyMariaGQL,
-  deleteManyMariaGQL,
-} from "./scripts/gqlMariaClient.js";
+import { createGQLClient } from "./scripts/gqlClient.js";
 
-import {
-  fetchMongoGQL,
-  addManyMongoGQL,
-  updateManyMongoGQL,
-  deleteManyMongoGQL,
-} from "./scripts/gqlMongoClient.js";
+const mariaGQL = createGQLClient("maria");
+const mongoGQL = createGQLClient("mongo");
 
 async function run() {
   console.log("\n🚀 MongoDB");
@@ -50,16 +41,16 @@ async function run() {
 
   // ================= GraphQL ====================
 
-  const gqlMongoBefore = await fetchMongoGQL();
-  const gqlMongoInserted = await addManyMongoGQL(1000);
-  const gqlMongoAfterInsert = await fetchMongoGQL();
+  const gqlMongoBefore = await mongoGQL.fetchMany();
+  const gqlMongoInserted = await mongoGQL.addMany(1000);
+  const gqlMongoAfterInsert = await mongoGQL.fetchMany();
 
   const gqlMongoNewIds = gqlMongoAfterInsert.data
     .map((u) => u.id)
     .filter((id) => !gqlMongoBefore.data.some((x) => x.id == id));
 
-  const gqlMongoUpdated = await updateManyMongoGQL(gqlMongoNewIds);
-  const gqlMongoDeleted = await deleteManyMongoGQL(gqlMongoNewIds);
+  const gqlMongoUpdated = await mongoGQL.updateMany(gqlMongoNewIds);
+  const gqlMongoDeleted = await mongoGQL.deleteMany(gqlMongoNewIds);
 
   console.log("\n=========== RESULTADOS GraphQL ===========\n");
   for (const r of [
@@ -94,16 +85,16 @@ async function run() {
 
   // ================= GraphQL ====================
 
-  const gqlBefore = await fetchMariaGQL();
-  const gqlInserted = await addManyMariaGQL(1000);
-  const gqlAfterInsert = await fetchMariaGQL();
+  const gqlBefore = await mariaGQL.fetchMany();
+  const gqlInserted = await mariaGQL.addMany(1000);
+  const gqlAfterInsert = await mariaGQL.fetchMany();
 
   const gqlNewIds = gqlAfterInsert.data
     .map((u) => u.id)
     .filter((id) => !gqlBefore.data.some((x) => x.id == id));
 
-  const gqlUpdated = await updateManyMariaGQL(gqlNewIds);
-  const gqlDeleted = await deleteManyMariaGQL(gqlNewIds);
+  const gqlUpdated = await mariaGQL.updateMany(gqlNewIds);
+  const gqlDeleted = await mariaGQL.deleteMany(gqlNewIds);
 
   console.log("\n=========== RESULTADOS GraphQL ===========\n");
   for (const r of [gqlBefore, gqlInserted, gqlUpdated, gqlDeleted])
