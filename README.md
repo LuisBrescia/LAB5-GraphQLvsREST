@@ -90,7 +90,27 @@ Nota: os tempos e tamanhos apresentados nas análises foram calculados a partir 
 
 ## Visualizações e figuras do dashboard
 
-As imagens do dashboard (exportadas do BI) foram adicionadas ao repositório e também descritas textualmente abaixo para leitura direta no relatório.
+As imagens do dashboard (exportadas do BI) foram adicionadas ao relatório.
+
+<figure>
+  <img src="./images/1.png" alt="Gráfico 1 — soma de tempo e tamanho" />
+  <figcaption><strong>Figura 1:</strong> Soma de tempo e tamanho por API, método e banco.</figcaption>
+</figure>
+
+<figure>
+  <img src="./images/2.png" alt="Gráfico 2 — médias por metodo" />
+  <figcaption><strong>Figura 2:</strong> Médias de tempo por método e banco (ordenadas).</figcaption>
+</figure>
+
+<figure>
+  <img src="./images/3.png" alt="Gráfico 3 — multiplots de tempo/tamanho" />
+  <figcaption><strong>Figura 3:</strong> Multiplots mostrando soma de tempo por API e banco (escala log em alguns painéis).</figcaption>
+</figure>
+
+<figure>
+  <img src="./images/4.png" alt="Gráfico 4 — resumo agregado" />
+  <figcaption><strong>Figura 4:</strong> Resumo agregado de tamanho e tempo por API e banco.</figcaption>
+</figure>
 
 ---
 
@@ -168,4 +188,5 @@ Conclusão textual (síntese do BI)
 - pasta: scripts/ — scripts de carga / medição (protocolo: 100 repetições × 3 trials)
 
 ---
+
 
