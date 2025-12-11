@@ -4,7 +4,7 @@ import path from "node:path";
 import { createRestClient } from "./scripts/restClient.js";
 import { createGQLClient } from "./scripts/gqlClient.js";
 
-const RUNS = 10; // quantas vezes cada benchmark será executado
+const RUNS = 100; // quantas vezes cada benchmark será executado
 const SIZES = [100, 500, 1_000];
 
 const dbs = [
