@@ -75,7 +75,7 @@ Todas as etapas acima foram concluídas e integradas nesta entrega final.
 Os dados usados para gerar as análises e o dashboard:
 
 - benchmark_100_items.csv
-- benchmark_500_items(1).csv
+- benchmark_500_items.csv
 - benchmark_1000_items.csv
 
 Colunas em cada CSV:
@@ -168,3 +168,4 @@ Conclusão textual (síntese do BI)
 - pasta: scripts/ — scripts de carga / medição (protocolo: 100 repetições × 3 trials)
 
 ---
+
