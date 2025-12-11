@@ -26,6 +26,12 @@ const dbs = [
     gql: createGQLClient("maria"),
     idField: "id",
   },
+  {
+    name: "Redis",
+    rest: createRestClient("redis", "id"),
+    gql: createGQLClient("redis"),
+    idField: "id",
+  },
 ];
 
 const logResult = (r) => {
